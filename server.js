@@ -9,11 +9,18 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+
+const corsOptions = {
+  origin: [
+    'http://localhost:3000', // Local development
+    'https://learnhub-frontend.vercel.app', // Aap ka Vercel frontend URL
+    'https://*.vercel.app' // All Vercel subdomains
+  ],
   credentials: true,
-}));
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 
 // MongoDB connect
 mongoose.connect(process.env.MONGO_URI)
@@ -24,6 +31,16 @@ mongoose.connect(process.env.MONGO_URI)
 const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/course');
 const enrollmentRoutes = require('./routes/enrollment'); // ✅ Only this one
+
+// server.js mein
+app.get('/api/users', (req, res) => {
+  res.json({ message: 'Users route' });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  // Login logic
+  res.json({ message: 'Login successful', token: 'jwt_token' });
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
