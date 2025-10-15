@@ -7,45 +7,56 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(express.json());
-
+// ✅ CORS Setup
 const corsOptions = {
-  origin: [
-    'http://localhost:3000', // Local development
-    'https://learnhub-frontend.vercel.app', // Aap ka Vercel frontend URL
-    'https://*.vercel.app' // All Vercel subdomains
-  ],
+  origin: "*",
   credentials: true,
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
+app.use(express.json());
 
 // MongoDB connect
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB error:', err.message));
+  .catch(err => {
+    console.log('⚠️ MongoDB connection failed but server running');
+    console.error('MongoDB Error:', err.message);
+  });
 
 // Routes
 const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/course');
-const enrollmentRoutes = require('./routes/enrollment'); // ✅ Only this one
-
-// server.js mein
-app.get('/api/users', (req, res) => {
-  res.json({ message: 'Users route' });
-});
-
-app.post('/api/auth/login', (req, res) => {
-  // Login logic
-  res.json({ message: 'Login successful', token: 'jwt_token' });
-});
+const enrollmentRoutes = require('./routes/enrollment');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 
-app.get('/', (req, res) => res.send('API is running...'));
+// ✅ TEST ROUTES
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'LearnHub Backend API is running! 🚀',
+    status: 'Active',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+  });
+});
 
-app.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    message: 'API test endpoint is working! ✅',
+    server: 'LearnHub Backend',
+    version: '1.0',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server started on port ${PORT}`);
+  console.log(`📍 URL: https://learnhubbackend-5wnv.onrender.com`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+});

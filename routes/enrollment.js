@@ -6,7 +6,7 @@ const Enrollment = require("../models/Enrollment");
 const User = require("../models/User");
 const Course = require("../models/Course");
 
-// ✅ FIXED: Enroll user in course
+// ✅ Enroll user in course
 router.post("/enroll", async (req, res) => {
   try {
     const { userId, courseId } = req.body;
@@ -34,7 +34,6 @@ router.post("/enroll", async (req, res) => {
       lastWatchedVideo: ""
     });
 
-    // Populate course details before sending response
     await enrollment.populate('courseId');
 
     res.status(201).json({
@@ -47,8 +46,8 @@ router.post("/enroll", async (req, res) => {
   }
 });
 
-// ✅ FIXED: Get all enrollments for a user
-router.get("/:userId", async (req, res) => {
+// ✅ Get all enrollments for a user
+router.get("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     console.log("Fetching enrollments for user:", userId);
@@ -69,7 +68,31 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
-// ✅ FIXED: Update progress
+// ✅ Get specific enrollment for user and course
+router.get("/:userId/:courseId", async (req, res) => {
+  try {
+    const { userId, courseId } = req.params;
+    console.log("Fetching enrollment:", { userId, courseId });
+
+    const enrollment = await Enrollment.findOne({ userId, courseId })
+      .populate('courseId');
+
+    if (!enrollment) {
+      return res.status(404).json({ 
+        message: "Enrollment not found",
+        progress: 0,
+        completedVideos: []
+      });
+    }
+
+    res.status(200).json(enrollment);
+  } catch (error) {
+    console.error("Fetch enrollment error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// ✅ Update progress
 router.put("/progress", async (req, res) => {
   try {
     const { userId, courseId, progress, completedVideos, lastWatchedVideo } = req.body;
@@ -78,7 +101,6 @@ router.put("/progress", async (req, res) => {
     let enrollment = await Enrollment.findOne({ userId, courseId });
 
     if (!enrollment) {
-      // Auto-enroll if not found
       enrollment = await Enrollment.create({
         userId,
         courseId,
