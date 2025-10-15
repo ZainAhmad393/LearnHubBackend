@@ -1,0 +1,31 @@
+{
+  "courses": [
+    {
+      "id": 1,
+      "title": "Modern React & Redux",
+      "category": "Web Dev",
+      "instructor": "Anil Sidhu",
+      "duration": "4 hrs",
+      "rating": 4.7,
+      "image": "https://placehold.co/300x160/38a8a4/ffffff?text=React+UI",
+      "playlistUrl": "PL8p2I9GklV47BCAjiCtuV_liN9IwAl8pM"
+    },
+    {
+      "id": 2,
+      "title": "Mastering Python for Data Science",
+      "category": "Data Science",
+      "instructor": "Apna College",
+      "duration": "20 hrs",
+      "rating": 4.9,
+      "image": "https://placehold.co/300x160/546e7a/ffffff?text=Python+Data",
+      "playlistUrl": "PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Zain Ahmad",
+      "enrolledCourses": []
+    }
+  ]
+}

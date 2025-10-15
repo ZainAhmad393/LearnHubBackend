@@ -1,41 +1,48 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const UserSchema = new mongoose.Schema({
-name:{
-    type:String,
-    required:true
-},
-email:{
-    type:String,
-    required:true,
-    unique:true
-},
-password:{
-    type:String,
-    required:true
-},
-date:{
-    type:Date,
-    default:Date.now()
-},
-forgotpassword:{
- resetPasswordToken: String, // 🌟 Naya field
-    resetPasswordExpire: Date,   // 🌟 Naya field
-}
-});
+// backend/models/User.js
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs"); // Assuming you use bcryptjs for password hashing
 
-UserSchema.pre('save',async function(next){
-    if(!this.isModified('password')){
-        return next();
-    }
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password,salt);
+const userSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    
+    resetPasswordToken: String, // ✅ Add this
+    resetPasswordExpire: Date, // ✅ Add this
+    // backend/models/User.js (update)
+  
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// ... (Hash password pre-save middleware) ...
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
     next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
-
-UserSchema.methods.matchPassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
+// ... (matchPassword method) ...
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+const User = mongoose.model("User", userSchema);
+module.exports = User;
+
+
